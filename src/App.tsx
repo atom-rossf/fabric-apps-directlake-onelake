@@ -1,4 +1,3 @@
-//-----------------------------------------------------------------------
 // <copyright company="Microsoft Corporation">
 //        Copyright (c) Microsoft Corporation.  All rights reserved.
 //        Licensed under the MIT license. See LICENSE file in the project root for full license information.
@@ -34,7 +33,13 @@ function App() {
   };
 
   return (
-    <div style={{ minHeight: "100%" }}>
+    <div
+      style={{
+        minHeight: "100%",
+        background: "var(--color-background, #292929)",
+        color: "var(--color-foreground, #ffffff)",
+      }}
+    >
       <nav
         aria-label="Dashboard pages"
         style={{
@@ -42,8 +47,8 @@ function App() {
           flexWrap: "wrap",
           gap: 8,
           padding: 12,
-          borderBottom: "1px solid var(--color-border, #e5e7eb)",
-          background: "var(--color-background, #fff)",
+          borderBottom: "1px solid var(--color-border, #525252)",
+          background: "var(--color-background, #292929)",
           position: "relative",
           zIndex: 10,
           pointerEvents: "auto",
@@ -62,10 +67,10 @@ function App() {
                 setPage(item.key);
               }}
               style={{
-                border: `1px solid ${isActive ? "var(--color-primary, #0f6cbd)" : "var(--color-border, #d1d5db)"}`,
+                border: `1px solid ${isActive ? "var(--color-primary, #115ea3)" : "var(--color-border, #525252)"}`,
                 borderRadius: 6,
-                background: isActive ? "var(--color-primary, #0f6cbd)" : "var(--color-card, #fff)",
-                color: isActive ? "var(--color-primary-foreground, #fff)" : "var(--color-foreground, #111827)",
+                background: isActive ? "var(--color-primary, #115ea3)" : "var(--color-card, #292929)",
+                color: isActive ? "var(--color-primary-foreground, #ffffff)" : "var(--color-card-foreground, #ffffff)",
                 cursor: "pointer",
                 font: "inherit",
                 fontWeight: isActive ? 600 : 500,

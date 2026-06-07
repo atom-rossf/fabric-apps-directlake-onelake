@@ -1,4 +1,3 @@
-import React from "react";
 import { summaryMetrics } from "@/queries/customer-insights/summary-metrics";
 import { useSemanticModelQuery } from "@/hooks/use-semantic-model-query";
 
@@ -31,8 +30,8 @@ export default function LandingPage() {
 
   return (
     <div style={{ padding: 16 }}>
-      <h2>Sales Performance</h2>
-      <p style={{ color: "var(--muted, #666)", marginTop: 4 }}>
+      <h2 style={{ color: "var(--color-foreground, #ffffff)" }}>Sales Performance</h2>
+      <p style={{ color: "var(--color-muted-foreground, #adadad)", marginTop: 4 }}>
         Fiscal-year-to-date sales view for the Sales_Cube_DEV semantic model.
       </p>
 
@@ -88,14 +87,15 @@ function MetricCard({
   return (
     <div
       style={{
-        background: "var(--card-bg, #fff)",
+        background: "var(--color-card, #292929)",
+        color: "var(--color-card-foreground, #ffffff)",
         padding: 16,
         borderRadius: 8,
         minWidth: 0,
         boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
       }}
     >
-      <div style={{ fontSize: 12, color: "var(--muted, #666)" }}>{label}</div>
+      <div style={{ fontSize: 12, color: "var(--color-muted-foreground, #adadad)" }}>{label}</div>
       <div style={{ fontSize: 22, fontWeight: 600, marginTop: 6 }}>{display}</div>
     </div>
   );

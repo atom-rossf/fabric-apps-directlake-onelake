@@ -18,7 +18,7 @@ VAR CurrentFyDates =
     )
 VAR CustomerSales =
     SUMMARIZECOLUMNS(
-        'customers'[Customer_Company],
+        'customers'[Customer_Name],
         CurrentFyDates,
         FILTER(ALL('sales_data'[IsKulbardi]), 'sales_data'[IsKulbardi] = FALSE()),
         FILTER(ALL('sales_data'[ExcludedFromSales]), 'sales_data'[ExcludedFromSales] = 0),
@@ -33,17 +33,17 @@ VAR TopCustomers =
         10,
         FILTER(
             CustomerSales,
-            NOT ISBLANK('customers'[Customer_Company])
+            NOT ISBLANK('customers'[Customer_Name])
                 && NOT ISBLANK([TotalSales])
                 && [TotalSales] <> 0
         ),
         [TotalSales], DESC,
-        'customers'[Customer_Company], ASC
+        'customers'[Customer_Name], ASC
     )
 RETURN
 SELECTCOLUMNS(
     TopCustomers,
-    "CustomerCompany", 'customers'[Customer_Company],
+    "CustomerName", 'customers'[Customer_Name],
     "TotalSales", [TotalSales]
 )
-ORDER BY [TotalSales] DESC, [CustomerCompany] ASC
+ORDER BY [TotalSales] DESC, [CustomerName] ASC

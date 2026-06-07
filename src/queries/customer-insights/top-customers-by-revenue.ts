@@ -4,13 +4,13 @@ import type { ColumnMetadataMap } from "@/lib/to-data-table";
 const connection = "customerInsights";
 
 export const columnMetadata: ColumnMetadataMap = {
-  "[CustomerCompany]": {
-    name: "CustomerCompany",
-    displayName: "Customer",
+  "[CustomerName]": {
+    name: "CustomerName",
+    displayName: "Customer Name",
   },
-  CustomerCompany: {
-    name: "CustomerCompany",
-    displayName: "Customer",
+  CustomerName: {
+    name: "CustomerName",
+    displayName: "Customer Name",
   },
   "[TotalSales]": {
     name: "TotalSales",
