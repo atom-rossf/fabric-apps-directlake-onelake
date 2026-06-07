@@ -2,11 +2,10 @@ EVALUATE
 VAR AnchorDate =
     CALCULATE(
         MAX('sales_data'[Invoice_Date]),
-        REMOVEFILTERS('calendar'),
         'sales_data'[IsKulbardi] = FALSE(),
         'sales_data'[ExcludedFromSales] = 0,
         FILTER(
-            ALL('sales_data'[LineType]),
+            'sales_data',
             ISBLANK('sales_data'[LineType]) || 'sales_data'[LineType] <> "KCOMP"
         )
     )
@@ -18,17 +17,28 @@ VAR FiscalYearStart =
     )
 VAR CurrentFyDates =
     FILTER(
-        ALL('calendar'),
+        ALL('calendar'[CalendarDate]),
         'calendar'[CalendarDate] >= FiscalYearStart
             && 'calendar'[CalendarDate] <= AnchorDate
     )
 VAR MonthlySales =
-    SUMMARIZECOLUMNS(
-        'calendar'[Year],
-        'calendar'[MonthNum],
-        'calendar'[Month MMM],
-        CurrentFyDates,
-        "TotalSales", COALESCE([Total Sales], 0)
+    ADDCOLUMNS(
+        SUMMARIZECOLUMNS(
+            'calendar'[Year],
+            'calendar'[MonthNum],
+            'calendar'[Month MMM],
+            CurrentFyDates
+        ),
+        "TotalSales",
+            CALCULATE(
+                SUM('sales_data'[Sale_val]),
+                'sales_data'[IsKulbardi] = FALSE(),
+                'sales_data'[ExcludedFromSales] = 0,
+                FILTER(
+                    'sales_data',
+                    ISBLANK('sales_data'[LineType]) || 'sales_data'[LineType] <> "KCOMP"
+                )
+            )
     )
 RETURN
 SELECTCOLUMNS(
@@ -37,6 +47,6 @@ SELECTCOLUMNS(
     "MonthNum", 'calendar'[MonthNum],
     "FiscalMonthIndex", MOD('calendar'[MonthNum] + 5, 12) + 1,
     "MonthLabel", 'calendar'[Month MMM] & " " & FORMAT('calendar'[Year], "0000"),
-    "TotalSales", [TotalSales]
+    "TotalSales", COALESCE([TotalSales], 0)
 )
 ORDER BY [Year] ASC, [MonthNum] ASC

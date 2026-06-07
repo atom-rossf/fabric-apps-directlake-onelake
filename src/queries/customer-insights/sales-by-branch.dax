@@ -2,11 +2,10 @@ EVALUATE
 VAR AnchorDate =
     CALCULATE(
         MAX('sales_data'[Invoice_Date]),
-        REMOVEFILTERS('calendar'),
         'sales_data'[IsKulbardi] = FALSE(),
         'sales_data'[ExcludedFromSales] = 0,
         FILTER(
-            ALL('sales_data'[LineType]),
+            'sales_data',
             ISBLANK('sales_data'[LineType]) || 'sales_data'[LineType] <> "KCOMP"
         )
     )
@@ -18,20 +17,34 @@ VAR FiscalYearStart =
     )
 VAR CurrentFyDates =
     FILTER(
-        ALL('calendar'),
+        ALL('calendar'[CalendarDate]),
         'calendar'[CalendarDate] >= FiscalYearStart
             && 'calendar'[CalendarDate] <= AnchorDate
     )
 VAR BranchSales =
-    SUMMARIZECOLUMNS(
-        'branches'[Branch_Name],
-        CurrentFyDates,
-        "TotalSales", [Total Sales]
+    ADDCOLUMNS(
+        SUMMARIZECOLUMNS('branches'[Branch_Name]),
+        "TotalSales",
+            CALCULATE(
+                SUM('sales_data'[Sale_val]),
+                CurrentFyDates,
+                'sales_data'[IsKulbardi] = FALSE(),
+                'sales_data'[ExcludedFromSales] = 0,
+                FILTER(
+                    'sales_data',
+                    ISBLANK('sales_data'[LineType]) || 'sales_data'[LineType] <> "KCOMP"
+                )
+            )
     )
 VAR RankedBranches =
     TOPN(
         50,
-        FILTER(BranchSales, NOT ISBLANK([TotalSales]) && [TotalSales] <> 0),
+        FILTER(
+            BranchSales,
+            NOT ISBLANK('branches'[Branch_Name])
+                && NOT ISBLANK([TotalSales])
+                && [TotalSales] <> 0
+        ),
         [TotalSales], DESC,
         'branches'[Branch_Name], ASC
     )

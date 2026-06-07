@@ -7,18 +7,80 @@
 
 import React, { useState } from "react";
 import LandingPage from "@/pages/LandingPage";
+import BranchPerformancePage from "@/pages/BranchPerformancePage";
 import CustomerInsightsPage from "./pages/CustomerInsightsPage";
 
+type PageKey = "sales-performance" | "sales-insights" | "branch-performance";
+
+const pages: Array<{ key: PageKey; label: string }> = [
+  { key: "sales-performance", label: "Sales Performance" },
+  { key: "sales-insights", label: "Sales Insights" },
+  { key: "branch-performance", label: "Branch Performance" },
+];
+
 function App() {
-  const [page, setPage] = useState<"landing" | "insights">("landing");
+  const [page, setPage] = useState<PageKey>("sales-performance");
+
+  const renderPage = () => {
+    switch (page) {
+      case "sales-insights":
+        return <CustomerInsightsPage />;
+      case "branch-performance":
+        return <BranchPerformancePage />;
+      case "sales-performance":
+      default:
+        return <LandingPage />;
+    }
+  };
 
   return (
-    <div>
-      <nav style={{ display: "flex", gap: 8, padding: 12 }}>
-        <button onClick={() => setPage("landing")}>Sales Performance</button>
-        <button onClick={() => setPage("insights")}>Sales Insights</button>
+    <div style={{ minHeight: "100%" }}>
+      <nav
+        aria-label="Dashboard pages"
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: 8,
+          padding: 12,
+          borderBottom: "1px solid var(--color-border, #e5e7eb)",
+          background: "var(--color-background, #fff)",
+          position: "relative",
+          zIndex: 10,
+          pointerEvents: "auto",
+        }}
+      >
+        {pages.map((item) => {
+          const isActive = page === item.key;
+          return (
+            <button
+              key={item.key}
+              type="button"
+              aria-current={isActive ? "page" : undefined}
+              aria-pressed={isActive}
+              onClick={(event) => {
+                event.preventDefault();
+                setPage(item.key);
+              }}
+              style={{
+                border: `1px solid ${isActive ? "var(--color-primary, #0f6cbd)" : "var(--color-border, #d1d5db)"}`,
+                borderRadius: 6,
+                background: isActive ? "var(--color-primary, #0f6cbd)" : "var(--color-card, #fff)",
+                color: isActive ? "var(--color-primary-foreground, #fff)" : "var(--color-foreground, #111827)",
+                cursor: "pointer",
+                font: "inherit",
+                fontWeight: isActive ? 600 : 500,
+                padding: "8px 12px",
+                pointerEvents: "auto",
+                position: "relative",
+                zIndex: 11,
+              }}
+            >
+              {item.label}
+            </button>
+          );
+        })}
       </nav>
-      <main>{page === "landing" ? <LandingPage /> : <CustomerInsightsPage />}</main>
+      <main>{renderPage()}</main>
     </div>
   );
 }
