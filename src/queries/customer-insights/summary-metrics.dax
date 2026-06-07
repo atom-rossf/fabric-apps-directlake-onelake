@@ -1,8 +1,58 @@
 EVALUATE
+VAR AnchorDate =
+    CALCULATE(
+        MAX('sales_data'[Invoice_Date]),
+        REMOVEFILTERS('calendar'),
+        'sales_data'[IsKulbardi] = FALSE(),
+        'sales_data'[ExcludedFromSales] = 0,
+        FILTER(
+            ALL('sales_data'[LineType]),
+            ISBLANK('sales_data'[LineType]) || 'sales_data'[LineType] <> "KCOMP"
+        )
+    )
+VAR FiscalYearStart =
+    DATE(
+        IF(MONTH(AnchorDate) >= 7, YEAR(AnchorDate), YEAR(AnchorDate) - 1),
+        7,
+        1
+    )
+VAR PriorYearFiscalYearStart = EDATE(FiscalYearStart, -12)
+VAR PriorYearAnchorDate = EDATE(AnchorDate, -12)
+VAR CurrentFyDates =
+    FILTER(
+        ALL('calendar'),
+        'calendar'[CalendarDate] >= FiscalYearStart
+            && 'calendar'[CalendarDate] <= AnchorDate
+    )
+VAR PriorFytdDates =
+    FILTER(
+        ALL('calendar'),
+        'calendar'[CalendarDate] >= PriorYearFiscalYearStart
+            && 'calendar'[CalendarDate] <= PriorYearAnchorDate
+    )
+VAR TotalSalesFYTD =
+    CALCULATE([Total Sales], CurrentFyDates)
+VAR TotalCogsFYTD =
+    CALCULATE([Total COGS], CurrentFyDates)
+VAR GrossProfitFYTD = TotalSalesFYTD - TotalCogsFYTD
+VAR MarginPctFYTD = DIVIDE(GrossProfitFYTD, TotalSalesFYTD)
+VAR PriorYearSalesFYTD =
+    CALCULATE([Total Sales], PriorFytdDates)
+VAR SalesGrowthVsPY =
+    DIVIDE(TotalSalesFYTD - PriorYearSalesFYTD, PriorYearSalesFYTD)
+VAR ActiveCustomers =
+    CALCULATE(
+        COUNTROWS('customers'),
+        FILTER(
+            ALL('customers'),
+            'customers'[Customer_AccountStatus] = TRUE()
+        )
+    )
+RETURN
 ROW(
-  "TotalCustomers", COUNTROWS('customers'),
-  "AvgLTV", AVERAGEX(ALL('customers'), COALESCE('customers'[Customer_AvaliableCredit], 0)),
-  "HighRisk", CALCULATE(COUNTROWS('customers'), FILTER(ALL('customers'), COALESCE('customers'[Customer_AvaliableCredit],0) < 100)),
-  "MediumRisk", CALCULATE(COUNTROWS('customers'), FILTER(ALL('customers'), COALESCE('customers'[Customer_AvaliableCredit],0) >= 100 && COALESCE('customers'[Customer_AvaliableCredit],0) < 10000)),
-  "LowRisk", CALCULATE(COUNTROWS('customers'), FILTER(ALL('customers'), COALESCE('customers'[Customer_AvaliableCredit],0) >= 10000))
+    "TotalSalesFYTD", COALESCE(TotalSalesFYTD, 0),
+    "GrossProfitFYTD", COALESCE(GrossProfitFYTD, 0),
+    "MarginPctFYTD", MarginPctFYTD,
+    "ActiveCustomers", COALESCE(ActiveCustomers, 0),
+    "SalesGrowthVsPY", SalesGrowthVsPY
 )

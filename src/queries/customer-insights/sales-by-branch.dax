@@ -1,0 +1,44 @@
+EVALUATE
+VAR AnchorDate =
+    CALCULATE(
+        MAX('sales_data'[Invoice_Date]),
+        REMOVEFILTERS('calendar'),
+        'sales_data'[IsKulbardi] = FALSE(),
+        'sales_data'[ExcludedFromSales] = 0,
+        FILTER(
+            ALL('sales_data'[LineType]),
+            ISBLANK('sales_data'[LineType]) || 'sales_data'[LineType] <> "KCOMP"
+        )
+    )
+VAR FiscalYearStart =
+    DATE(
+        IF(MONTH(AnchorDate) >= 7, YEAR(AnchorDate), YEAR(AnchorDate) - 1),
+        7,
+        1
+    )
+VAR CurrentFyDates =
+    FILTER(
+        ALL('calendar'),
+        'calendar'[CalendarDate] >= FiscalYearStart
+            && 'calendar'[CalendarDate] <= AnchorDate
+    )
+VAR BranchSales =
+    SUMMARIZECOLUMNS(
+        'branches'[Branch_Name],
+        CurrentFyDates,
+        "TotalSales", [Total Sales]
+    )
+VAR RankedBranches =
+    TOPN(
+        50,
+        FILTER(BranchSales, NOT ISBLANK([TotalSales]) && [TotalSales] <> 0),
+        [TotalSales], DESC,
+        'branches'[Branch_Name], ASC
+    )
+RETURN
+SELECTCOLUMNS(
+    RankedBranches,
+    "BranchName", 'branches'[Branch_Name],
+    "TotalSales", [TotalSales]
+)
+ORDER BY [TotalSales] DESC, [BranchName] ASC

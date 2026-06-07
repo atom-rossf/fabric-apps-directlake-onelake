@@ -11,15 +11,14 @@ import CustomerInsightsPage from "./pages/CustomerInsightsPage";
 
 function App() {
   const [page, setPage] = useState<"landing" | "insights">("landing");
+
   return (
     <div>
       <nav style={{ display: "flex", gap: 8, padding: 12 }}>
-        <button onClick={() => setPage("landing")}>Home</button>
-        <button onClick={() => setPage("insights")}>Customer Insights</button>
+        <button onClick={() => setPage("landing")}>Sales Performance</button>
+        <button onClick={() => setPage("insights")}>Sales Insights</button>
       </nav>
-      <main>
-        {page === "landing" ? <LandingPage /> : <CustomerInsightsPage />}
-      </main>
+      <main>{page === "landing" ? <LandingPage /> : <CustomerInsightsPage />}</main>
     </div>
   );
 }

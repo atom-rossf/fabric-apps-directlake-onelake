@@ -2,49 +2,126 @@ import React from "react";
 import { summaryMetrics } from "@/queries/customer-insights/summary-metrics";
 import { useSemanticModelQuery } from "@/hooks/use-semantic-model-query";
 
+type MetricFormat = "currency" | "number" | "percent";
+
 export default function LandingPage() {
   const { connection, query } = summaryMetrics();
   const { data, isLoading, error } = useSemanticModelQuery({ connection, query });
 
-  if (isLoading) return <div>Loading summary...</div>;
-  if (error) return <div>Error loading summary: {String(error)}</div>;
-  if (!data || data.status !== "success") return <div>No summary data available.</div>;
+  if (isLoading) return <div style={{ padding: 16 }}>Loading sales summary...</div>;
+  if (error) return <div style={{ padding: 16 }}>Error loading sales summary: {error.message}</div>;
+  if (data?.status === "error") {
+    return <div style={{ padding: 16 }}>Query error: {data.error.message}</div>;
+  }
+  if (!data || data.status !== "success") {
+    return <div style={{ padding: 16 }}>No sales summary data available.</div>;
+  }
 
-  // Expect a single-row table with columns containing metric values.
-  const cols = data.table.columns.map(c => c.name);
-  const row = (data.table.rows && data.table.rows[0]) || [];
+  const cols = data.table.columns.map((column) => column.name);
+  const row = data.table.rows?.[0] ?? [];
 
-  const get = (colName: string) => {
-    const idx = cols.indexOf(colName);
-    return idx >= 0 ? row[idx] : undefined;
+  const getMetric = (columnName: string) => {
+    const candidates = [columnName, `[${columnName}]`];
+    const index = candidates
+      .map((candidate) => cols.indexOf(candidate))
+      .find((candidateIndex) => candidateIndex >= 0);
+
+    return index === undefined ? undefined : row[index];
   };
-
-  const total = get("TotalCustomers");
-  const avg = get("AvgLTV");
-  const high = get("HighRisk");
-  const medium = get("MediumRisk");
-  const low = get("LowRisk");
 
   return (
     <div style={{ padding: 16 }}>
-      <h2>Customer Insights — Summary</h2>
-      <div style={{ display: "flex", gap: 12, marginTop: 12 }}>
-        <MetricCard label="Total Customers" value={total} />
-        <MetricCard label="Average LTV" value={avg} format="currency" />
-        <MetricCard label="High Risk" value={high} />
-        <MetricCard label="Medium Risk" value={medium} />
-        <MetricCard label="Low Risk" value={low} />
+      <h2>Sales Performance</h2>
+      <p style={{ color: "var(--muted, #666)", marginTop: 4 }}>
+        Fiscal-year-to-date sales view for the Sales_Cube_DEV semantic model.
+      </p>
+
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+          gap: 12,
+          marginTop: 12,
+        }}
+      >
+        <MetricCard
+          label="Total Sales (FYTD)"
+          value={getMetric("TotalSalesFYTD")}
+          format="currency"
+        />
+        <MetricCard
+          label="Gross Profit (FYTD)"
+          value={getMetric("GrossProfitFYTD")}
+          format="currency"
+        />
+        <MetricCard
+          label="Margin % (FYTD)"
+          value={getMetric("MarginPctFYTD")}
+          format="percent"
+        />
+        <MetricCard
+          label="Active Customers"
+          value={getMetric("ActiveCustomers")}
+          format="number"
+        />
+        <MetricCard
+          label="Sales Growth vs PY"
+          value={getMetric("SalesGrowthVsPY")}
+          format="percent"
+        />
       </div>
     </div>
   );
 }
 
-function MetricCard({ label, value, format }: { label: string; value: any; format?: "currency" | "number" }) {
-  const display = value == null ? "—" : format === "currency" ? `$${Number(value).toLocaleString()}` : String(value);
+function MetricCard({
+  label,
+  value,
+  format,
+}: {
+  label: string;
+  value: unknown;
+  format: MetricFormat;
+}) {
+  const display = formatMetric(value, format);
+
   return (
-    <div style={{ background: "var(--card-bg, #fff)", padding: 12, borderRadius: 8, minWidth: 140, boxShadow: "0 1px 2px rgba(0,0,0,0.05)" }}>
+    <div
+      style={{
+        background: "var(--card-bg, #fff)",
+        padding: 16,
+        borderRadius: 8,
+        minWidth: 0,
+        boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
+      }}
+    >
       <div style={{ fontSize: 12, color: "var(--muted, #666)" }}>{label}</div>
-      <div style={{ fontSize: 20, fontWeight: 600 }}>{display}</div>
+      <div style={{ fontSize: 22, fontWeight: 600, marginTop: 6 }}>{display}</div>
     </div>
   );
+}
+
+function formatMetric(value: unknown, format: MetricFormat) {
+  if (value == null || value === "") return "—";
+
+  const numericValue = Number(value);
+  if (!Number.isFinite(numericValue)) return String(value);
+
+  if (format === "currency") {
+    return numericValue.toLocaleString("en-AU", {
+      style: "currency",
+      currency: "AUD",
+      maximumFractionDigits: 0,
+    });
+  }
+
+  if (format === "percent") {
+    return numericValue.toLocaleString("en-AU", {
+      style: "percent",
+      minimumFractionDigits: 1,
+      maximumFractionDigits: 1,
+    });
+  }
+
+  return numericValue.toLocaleString("en-AU", { maximumFractionDigits: 0 });
 }

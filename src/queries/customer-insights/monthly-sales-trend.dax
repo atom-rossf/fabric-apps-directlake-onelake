@@ -1,0 +1,42 @@
+EVALUATE
+VAR AnchorDate =
+    CALCULATE(
+        MAX('sales_data'[Invoice_Date]),
+        REMOVEFILTERS('calendar'),
+        'sales_data'[IsKulbardi] = FALSE(),
+        'sales_data'[ExcludedFromSales] = 0,
+        FILTER(
+            ALL('sales_data'[LineType]),
+            ISBLANK('sales_data'[LineType]) || 'sales_data'[LineType] <> "KCOMP"
+        )
+    )
+VAR FiscalYearStart =
+    DATE(
+        IF(MONTH(AnchorDate) >= 7, YEAR(AnchorDate), YEAR(AnchorDate) - 1),
+        7,
+        1
+    )
+VAR CurrentFyDates =
+    FILTER(
+        ALL('calendar'),
+        'calendar'[CalendarDate] >= FiscalYearStart
+            && 'calendar'[CalendarDate] <= AnchorDate
+    )
+VAR MonthlySales =
+    SUMMARIZECOLUMNS(
+        'calendar'[Year],
+        'calendar'[MonthNum],
+        'calendar'[Month MMM],
+        CurrentFyDates,
+        "TotalSales", COALESCE([Total Sales], 0)
+    )
+RETURN
+SELECTCOLUMNS(
+    MonthlySales,
+    "Year", 'calendar'[Year],
+    "MonthNum", 'calendar'[MonthNum],
+    "FiscalMonthIndex", MOD('calendar'[MonthNum] + 5, 12) + 1,
+    "MonthLabel", 'calendar'[Month MMM] & " " & FORMAT('calendar'[Year], "0000"),
+    "TotalSales", [TotalSales]
+)
+ORDER BY [Year] ASC, [MonthNum] ASC

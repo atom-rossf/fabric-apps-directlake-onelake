@@ -1,0 +1,28 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "description": "FYTD total sales grouped by branch.",
+  "data": { "name": "table" },
+  "mark": { "type": "bar", "tooltip": true },
+  "encoding": {
+    "y": {
+      "field": "BranchName",
+      "type": "nominal",
+      "sort": "-x",
+      "axis": { "title": "Branch" }
+    },
+    "x": {
+      "field": "TotalSales",
+      "type": "quantitative",
+      "axis": { "title": "Total Sales (FYTD)", "format": "$,.2s" }
+    },
+    "tooltip": [
+      { "field": "BranchName", "type": "nominal", "title": "Branch" },
+      {
+        "field": "TotalSales",
+        "type": "quantitative",
+        "title": "Total Sales",
+        "format": "$,.2f"
+      }
+    ]
+  }
+}
