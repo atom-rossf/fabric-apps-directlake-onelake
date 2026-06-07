@@ -1,0 +1,57 @@
+EVALUATE
+VAR AnchorDate =
+    CALCULATE(
+        MAX('sales_data'[Invoice_Date]),
+        'sales_data'[IsKulbardi] = FALSE(),
+        'sales_data'[ExcludedFromSales] = 0,
+        FILTER(
+            'sales_data',
+            ISBLANK('sales_data'[LineType]) || 'sales_data'[LineType] <> "KCOMP"
+        )
+    )
+VAR FiscalYearStart =
+    DATE(
+        IF(MONTH(AnchorDate) >= 7, YEAR(AnchorDate), YEAR(AnchorDate) - 1),
+        7,
+        1
+    )
+VAR CurrentFyDates =
+    FILTER(
+        ALL('calendar'[CalendarDate]),
+        'calendar'[CalendarDate] >= FiscalYearStart
+            && 'calendar'[CalendarDate] <= AnchorDate
+    )
+VAR CustomerSales =
+    ADDCOLUMNS(
+        SUMMARIZECOLUMNS('customers'[Customer_Company]),
+        "TotalSales",
+            CALCULATE(
+                SUM('sales_data'[Sale_val]),
+                CurrentFyDates,
+                'sales_data'[IsKulbardi] = FALSE(),
+                'sales_data'[ExcludedFromSales] = 0,
+                FILTER(
+                    'sales_data',
+                    ISBLANK('sales_data'[LineType]) || 'sales_data'[LineType] <> "KCOMP"
+                )
+            )
+    )
+VAR TopCustomers =
+    TOPN(
+        10,
+        FILTER(
+            CustomerSales,
+            NOT ISBLANK('customers'[Customer_Company])
+                && NOT ISBLANK([TotalSales])
+                && [TotalSales] <> 0
+        ),
+        [TotalSales], DESC,
+        'customers'[Customer_Company], ASC
+    )
+RETURN
+SELECTCOLUMNS(
+    TopCustomers,
+    "CustomerCompany", 'customers'[Customer_Company],
+    "TotalSales", [TotalSales]
+)
+ORDER BY [TotalSales] DESC, [CustomerCompany] ASC

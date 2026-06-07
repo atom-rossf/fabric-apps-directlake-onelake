@@ -1,0 +1,40 @@
+EVALUATE
+VAR BranchPerformanceRows =
+    ADDCOLUMNS(
+        SUMMARIZECOLUMNS('branches'[Branch_Name]),
+        "TotalSales",
+            CALCULATE(
+                SUM('sales_data'[Sale_val]),
+                'sales_data'[IsKulbardi] = FALSE(),
+                'sales_data'[ExcludedFromSales] = 0,
+                FILTER(
+                    'sales_data',
+                    ISBLANK('sales_data'[LineType]) || 'sales_data'[LineType] <> "KCOMP"
+                )
+            ),
+        "TotalCOGS",
+            CALCULATE(
+                SUM('sales_data'[Cogs]),
+                'sales_data'[IsKulbardi] = FALSE(),
+                'sales_data'[ExcludedFromSales] = 0,
+                FILTER(
+                    'sales_data',
+                    ISBLANK('sales_data'[LineType]) || 'sales_data'[LineType] <> "KCOMP"
+                )
+            )
+    )
+VAR DisplayRows =
+    SELECTCOLUMNS(
+        FILTER(
+            BranchPerformanceRows,
+            NOT ISBLANK('branches'[Branch_Name])
+                && NOT ISBLANK([TotalSales])
+                && [TotalSales] <> 0
+        ),
+        "BranchName", 'branches'[Branch_Name],
+        "TotalSales", [TotalSales],
+        "MarginPct", DIVIDE([TotalSales] - [TotalCOGS], [TotalSales])
+    )
+RETURN
+DisplayRows
+ORDER BY [TotalSales] DESC, [BranchName] ASC

@@ -1,0 +1,28 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "description": "Monthly total sales trend for the current Australian fiscal year.",
+  "data": { "name": "table" },
+  "mark": { "type": "line", "point": true, "tooltip": true },
+  "encoding": {
+    "x": {
+      "field": "MonthLabel",
+      "type": "ordinal",
+      "sort": { "field": "FiscalMonthIndex", "order": "ascending" },
+      "axis": { "title": "Month" }
+    },
+    "y": {
+      "field": "TotalSales",
+      "type": "quantitative",
+      "axis": { "title": "Total Sales", "format": "$,.2s" }
+    },
+    "tooltip": [
+      { "field": "MonthLabel", "type": "nominal", "title": "Month" },
+      {
+        "field": "TotalSales",
+        "type": "quantitative",
+        "title": "Total Sales",
+        "format": "$,.2f"
+      }
+    ]
+  }
+}
