@@ -1,26 +1,18 @@
 EVALUATE
 VAR BranchPerformanceRows =
-    ADDCOLUMNS(
-        SUMMARIZECOLUMNS('branches'[Branch_Name]),
+    SUMMARIZECOLUMNS(
+        'branches'[Branch_Name],
+        FILTER(ALL('sales_data'[IsKulbardi]), 'sales_data'[IsKulbardi] = FALSE()),
+        FILTER(ALL('sales_data'[ExcludedFromSales]), 'sales_data'[ExcludedFromSales] = 0),
         "TotalSales",
             CALCULATE(
                 SUM('sales_data'[Sale_val]),
-                'sales_data'[IsKulbardi] = FALSE(),
-                'sales_data'[ExcludedFromSales] = 0,
-                FILTER(
-                    'sales_data',
-                    ISBLANK('sales_data'[LineType]) || 'sales_data'[LineType] <> "KCOMP"
-                )
+                ISBLANK('sales_data'[LineType]) || 'sales_data'[LineType] <> "KCOMP"
             ),
         "TotalCOGS",
             CALCULATE(
                 SUM('sales_data'[Cogs]),
-                'sales_data'[IsKulbardi] = FALSE(),
-                'sales_data'[ExcludedFromSales] = 0,
-                FILTER(
-                    'sales_data',
-                    ISBLANK('sales_data'[LineType]) || 'sales_data'[LineType] <> "KCOMP"
-                )
+                ISBLANK('sales_data'[LineType]) || 'sales_data'[LineType] <> "KCOMP"
             )
     )
 VAR DisplayRows =

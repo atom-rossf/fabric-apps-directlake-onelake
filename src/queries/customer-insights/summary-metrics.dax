@@ -2,13 +2,7 @@ EVALUATE
 VAR AnchorDate =
     CALCULATE(
         MAX('sales_data'[Invoice_Date]),
-        REMOVEFILTERS('calendar'),
-        'sales_data'[IsKulbardi] = FALSE(),
-        'sales_data'[ExcludedFromSales] = 0,
-        FILTER(
-            ALL('sales_data'[LineType]),
-            ISBLANK('sales_data'[LineType]) || 'sales_data'[LineType] <> "KCOMP"
-        )
+        REMOVEFILTERS()
     )
 VAR FiscalYearStart =
     DATE(
@@ -20,24 +14,42 @@ VAR PriorYearFiscalYearStart = EDATE(FiscalYearStart, -12)
 VAR PriorYearAnchorDate = EDATE(AnchorDate, -12)
 VAR CurrentFyDates =
     FILTER(
-        ALL('calendar'),
+        ALL('calendar'[CalendarDate]),
         'calendar'[CalendarDate] >= FiscalYearStart
             && 'calendar'[CalendarDate] <= AnchorDate
     )
 VAR PriorFytdDates =
     FILTER(
-        ALL('calendar'),
+        ALL('calendar'[CalendarDate]),
         'calendar'[CalendarDate] >= PriorYearFiscalYearStart
             && 'calendar'[CalendarDate] <= PriorYearAnchorDate
     )
 VAR TotalSalesFYTD =
-    CALCULATE([Total Sales], CurrentFyDates)
+    CALCULATE(
+        SUM('sales_data'[Sale_val]),
+        CurrentFyDates,
+        'sales_data'[IsKulbardi] = FALSE(),
+        'sales_data'[ExcludedFromSales] = 0,
+        ISBLANK('sales_data'[LineType]) || 'sales_data'[LineType] <> "KCOMP"
+    )
 VAR TotalCogsFYTD =
-    CALCULATE([Total COGS], CurrentFyDates)
+    CALCULATE(
+        SUM('sales_data'[Cogs]),
+        CurrentFyDates,
+        'sales_data'[IsKulbardi] = FALSE(),
+        'sales_data'[ExcludedFromSales] = 0,
+        ISBLANK('sales_data'[LineType]) || 'sales_data'[LineType] <> "KCOMP"
+    )
 VAR GrossProfitFYTD = TotalSalesFYTD - TotalCogsFYTD
 VAR MarginPctFYTD = DIVIDE(GrossProfitFYTD, TotalSalesFYTD)
 VAR PriorYearSalesFYTD =
-    CALCULATE([Total Sales], PriorFytdDates)
+    CALCULATE(
+        SUM('sales_data'[Sale_val]),
+        PriorFytdDates,
+        'sales_data'[IsKulbardi] = FALSE(),
+        'sales_data'[ExcludedFromSales] = 0,
+        ISBLANK('sales_data'[LineType]) || 'sales_data'[LineType] <> "KCOMP"
+    )
 VAR SalesGrowthVsPY =
     DIVIDE(TotalSalesFYTD - PriorYearSalesFYTD, PriorYearSalesFYTD)
 VAR ActiveCustomers =
