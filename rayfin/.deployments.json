@@ -1,0 +1,15 @@
+{
+  "deployments": {
+    "sales-data-dev": {
+      "fabricItemId": "0786fc19-9572-4740-a10a-664959af2933",
+      "fabricApiUrl": "https://australiaeast.pbidedicated.windows.net/webapi/capacities/cf086d3c-d7f8-4ee7-ac24-2bfd7c779436/workloads/BaaS/BaaSService/automatic/v1/workspaces/1692700c-88b0-4d8d-9527-9d4f65ba11ba/appbackends/0786fc19-9572-4740-a10a-664959af2933",
+      "fabricWorkspaceId": "1692700c-88b0-4d8d-9527-9d4f65ba11ba",
+      "fabricTenantId": "a4d482bb-7c27-4ce7-adfc-c8f547be90ca",
+      "publishableKey": "pk-pLPU1mV9mAsVfb8mSKFY",
+      "hostingUrl": "https://dense-cliff-150c53a3eb-australiaeast.webapp.fabricapps.net",
+      "fabricDeepLink": "https://app.fabric.microsoft.com/groups/1692700c-88b0-4d8d-9527-9d4f65ba11ba/appbackends/0786fc19-9572-4740-a10a-664959af2933?ctid=a4d482bb-7c27-4ce7-adfc-c8f547be90ca",
+      "deployedAt": "2026-06-07T07:16:39.120Z"
+    }
+  },
+  "active": "sales-data-dev"
+}

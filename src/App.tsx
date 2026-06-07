@@ -5,12 +5,23 @@
 // </copyright>
 //-----------------------------------------------------------------------
 
-import { EmptyStatePreview } from "./EmptyStatePreview";
+import React, { useState } from "react";
+import LandingPage from "@/pages/LandingPage";
+import CustomerInsightsPage from "./pages/CustomerInsightsPage";
 
-// Replace `<EmptyStatePreview />` with your dashboard, remove the import
-// above, and delete `EmptyStatePreview.tsx` and `empty-state-preview-world-map.png`.
 function App() {
-    return <EmptyStatePreview />;
+  const [page, setPage] = useState<"landing" | "insights">("landing");
+  return (
+    <div>
+      <nav style={{ display: "flex", gap: 8, padding: 12 }}>
+        <button onClick={() => setPage("landing")}>Home</button>
+        <button onClick={() => setPage("insights")}>Customer Insights</button>
+      </nav>
+      <main>
+        {page === "landing" ? <LandingPage /> : <CustomerInsightsPage />}
+      </main>
+    </div>
+  );
 }
 
 export default App;

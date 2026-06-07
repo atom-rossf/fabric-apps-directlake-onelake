@@ -1,0 +1,8 @@
+EVALUATE
+ROW(
+  "TotalCustomers", COUNTROWS('customers'),
+  "AvgLTV", AVERAGEX(ALL('customers'), COALESCE('customers'[Customer_AvaliableCredit], 0)),
+  "HighRisk", CALCULATE(COUNTROWS('customers'), FILTER(ALL('customers'), COALESCE('customers'[Customer_AvaliableCredit],0) < 100)),
+  "MediumRisk", CALCULATE(COUNTROWS('customers'), FILTER(ALL('customers'), COALESCE('customers'[Customer_AvaliableCredit],0) >= 100 && COALESCE('customers'[Customer_AvaliableCredit],0) < 10000)),
+  "LowRisk", CALCULATE(COUNTROWS('customers'), FILTER(ALL('customers'), COALESCE('customers'[Customer_AvaliableCredit],0) >= 10000))
+)

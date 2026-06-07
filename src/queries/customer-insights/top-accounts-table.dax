@@ -1,0 +1,17 @@
+EVALUATE
+SELECTCOLUMNS(
+    TOPN(1000,
+        ADDCOLUMNS(
+            'customers',
+            "CustomerID", 'customers'[ID],
+            "CustomerName", 'customers'[Customer_Name],
+            "LTV", COALESCE('customers'[Customer_AvaliableCredit], 0),
+            "Revenue", COALESCE('customers'[Customer_AvaliableCredit], 0)  // proxy for revenue
+        ),
+        [LTV], DESC
+    ),
+    "CustomerID", [CustomerID],
+    "CustomerName", [CustomerName],
+    "Revenue", [Revenue],
+    "LTV", [LTV]
+)

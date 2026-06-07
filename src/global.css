@@ -184,3 +184,52 @@ body,
 #root {
   height: 100%;
 }
+
+/* Constrain chart containers to avoid runaway vertical expansion */
+.chart-container {
+  /* Force a fixed rendering box */
+  height: 360px !important;
+  max-height: 560px !important;
+  min-height: 0 !important;                /* important for flex parents */
+  overflow: hidden !important;             /* hide overflow to break resize loops */
+  box-sizing: border-box !important;
+  display: block !important;
+  position: relative !important;
+  flex: 0 0 auto !important;
+}
+
+/* Inner scrollable area — keeps visuals sized but scrollable if needed */
+.chart-inner {
+  height: 100% !important;
+  max-height: 100% !important;
+  overflow: auto !important;
+  box-sizing: border-box !important;
+}
+
+/* Force child visuals to respect container size */
+.chart-container > * {
+  height: 100% !important;
+  max-height: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.chart-container svg,
+.chart-container canvas {
+  width: 100% !important;
+  height: 100% !important;
+  max-height: 100% !important;
+}
+
+/* Smaller grid variant for tables */
+.chart-grid {
+  max-height: 420px !important;
+}
+
+/* DataGrid/table defensive rules */
+.chart-grid table,
+.chart-grid .fabric-datagrid,
+.chart-grid [role="grid"] {
+  display: block !important;
+  max-height: 420px !important;
+  overflow: auto !important;
+}

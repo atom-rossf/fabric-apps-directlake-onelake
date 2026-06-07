@@ -54,7 +54,16 @@ export default defineConfig({
         }
     },
     optimizeDeps: {
-        include: ['@microsoft/fabric-visuals', '@microsoft/fabric-datagrid', '@microsoft/fabric-visuals-core'],
+        // Ensure core React runtime and JSX runtimes are pre-bundled to avoid runtime interop issues
+        include: [
+            'react',
+            'react-dom',
+            'react/jsx-runtime',
+            'react/jsx-dev-runtime',
+            '@microsoft/fabric-visuals',
+            '@microsoft/fabric-datagrid',
+            '@microsoft/fabric-visuals-core',
+        ],
     },
     build: {
         commonjsOptions: {
